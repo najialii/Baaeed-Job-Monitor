@@ -75,8 +75,8 @@ function parseJobs(html) {
       const url = urlMatch[1];
       const jobId = extractJobId(url);
       
-      const titleMatch = jobHtml.match(/<a[^>]*href="https:\/\/baaeed\.com\/remote-jobs\/[^"]*"[^>]*>\s*([^<]+)\s*<\/a>/i);
-      const title = titleMatch ? titleMatch[1].trim() : '';
+      const titleMatch = jobHtml.match(/<a[^>]*href="https:\/\/baaeed\.com\/remote-jobs\/[^"]*"[^>]*>\s*([\s\S]*?)\s*<\/a>/i);
+      let title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, '').trim() : '';
       
       if (title && url) {
         jobs.push({
