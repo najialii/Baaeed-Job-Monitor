@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baaeed Job Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 360px;
+      font-family: 'Tajawal', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #ffffff;
+      color: #1a1a1a;
+    }
+
+    .header {
+      padding: 20px;
+      background: linear-gradient(135deg, #00bfa5 0%, #00a896 100%);
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .control-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .control-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 28px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+      border-radius: 28px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #00bfa5;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    .status-section {
+      margin-bottom: 20px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+    }
+
+    .status-item:last-child {
+      border-bottom: none;
+    }
+
+    .status-label {
+      color: #666;
+    }
+
+    .status-value {
+      color: #1a1a1a;
+      font-weight: 500;
+    }
+
+    .jobs-section {
+      margin-top: 20px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+    }
+
+    .job-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .job-item {
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-right: 3px solid #00bfa5;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .job-item:hover {
+      background: #e9ecef;
+      transform: translateX(-2px);
+    }
+
+    .job-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .job-time {
+      font-size: 11px;
+      color: #666;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 24px;
+      color: #999;
+      font-size: 13px;
+    }
+
+    .check-now-btn {
+      width: 100%;
+      padding: 12px;
+      background: #00bfa5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: 'Tajawal', sans-serif;
+      margin-top: 16px;
+    }
+
+    .check-now-btn:hover {
+      background: #00a896;
+    }
+
+    .check-now-btn:active {
+      transform: scale(0.98);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #00bfa5;
+      color: white;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 500;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>مراقب وظائف بعيد</h1>
+    <p>Remote Jobs Monitor</p>
+  </div>
+
+  <div class="content">
+    <div class="control-section">
+      <span class="control-label">تفعيل المراقبة</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="monitorToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="status-section">
+      <div class="status-item">
+        <span class="status-label">آخر فحص</span>
+        <span class="status-value" id="lastCheck">لم يتم الفحص بعد</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">الفحص التالي</span>
+        <span class="status-value" id="nextCheck">--</span>
+      </div>
+    </div>
+
+    <button class="check-now-btn" id="checkNowBtn">فحص الآن</button>
+
+    <div class="jobs-section">
+      <div class="section-title">
+        <span class="badge">جديد</span>
+        آخر 3 وظائف
+      </div>
+      <div class="job-list" id="jobList">
+        <div class="empty-state">لا توجد وظائف جديدة حتى الآن</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
