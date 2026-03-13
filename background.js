@@ -1,8 +1,7 @@
 const ALARM_NAME = 'baaeedJobCheck';
-const CHECK_INTERVAL = 20; // minutes
+const CHECK_INTERVAL = 20;
 const BAAEED_URL = 'https://baaeed.com/remote-jobs';
 
-// Initialize alarm on install
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.get(['monitorEnabled'], (result) => {
     if (result.monitorEnabled !== false) {
@@ -12,26 +11,22 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// Create alarm
 function createAlarm() {
   chrome.alarms.create(ALARM_NAME, {
     periodInMinutes: CHECK_INTERVAL
   });
 }
 
-// Clear alarm
 function clearAlarm() {
   chrome.alarms.clear(ALARM_NAME);
 }
 
-// Listen for alarm
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === ALARM_NAME) {
     checkForNewJobs();
   }
 });
 
-// Listen for messages from popup
 chrome.runtime.onMessage.addListener((request) => {
   if (request.action === 'toggleMonitor') {
     if (request.enabled) {
@@ -45,7 +40,6 @@ chrome.runtime.onMessage.addListener((request) => {
   }
 });
 
-// Main function to check for new jobs
 async function checkForNewJobs() {
   try {
     const response = await fetch(BAAEED_URL);
@@ -59,7 +53,6 @@ async function checkForNewJobs() {
       notifyNewJobs(newJobs);
     }
     
-    // Update last check time
     chrome.storage.local.set({
       lastCheck: new Date().toISOString()
     });
@@ -69,30 +62,39 @@ async function checkForNewJobs() {
   }
 }
 
-// Parse jobs from HTML
 function parseJobs(html) {
   const jobs = [];
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
+  const jobPattern = /<article[^>]*class="[^"]*job[^"]*"[^>]*>[\s\S]*?<\/article>/gi;
+  const jobMatches = html.match(jobPattern) || [];
   
-  // Find all job listings with "جديد" badge
-  const jobElements = doc.querySelectorAll('.job-item, .job-card, [class*="job"]');
-  
-  jobElements.forEach((element) => {
-    const hasNewBadge = element.textContent.includes('جديد');
-    
-    if (hasNewBadge) {
-      const titleElement = element.querySelector('h2, h3, .job-title, [class*="title"]');
-      const linkElement = element.querySelector('a');
+  jobMatches.forEach((jobHtml) => {
+    if (jobHtml.includes('جديد')) {
+      const urlMatch = jobHtml.match(/href="([^"]*\/jobs\/[^"]*)"/i);
+      if (!urlMatch) return;
       
-      if (titleElement && linkElement) {
-        const jobId = extractJobId(linkElement.href);
-        const title = titleElement.textContent.trim();
-        
+      const url = urlMatch[1].startsWith('http') ? urlMatch[1] : `https://baaeed.com${urlMatch[1]}`;
+      const jobId = extractJobId(url);
+      
+      let title = '';
+      const titlePatterns = [
+        /<h2[^>]*>(.*?)<\/h2>/i,
+        /<h3[^>]*>(.*?)<\/h3>/i,
+        /class="[^"]*title[^"]*"[^>]*>(.*?)</i
+      ];
+      
+      for (const pattern of titlePatterns) {
+        const titleMatch = jobHtml.match(pattern);
+        if (titleMatch) {
+          title = titleMatch[1].replace(/<[^>]*>/g, '').trim();
+          break;
+        }
+      }
+      
+      if (title && url) {
         jobs.push({
           id: jobId,
           title: title,
-          url: linkElement.href,
+          url: url,
           timestamp: new Date().toISOString()
         });
       }
@@ -102,13 +104,11 @@ function parseJobs(html) {
   return jobs;
 }
 
-// Extract job ID from URL
 function extractJobId(url) {
   const match = url.match(/\/(\d+)/);
   return match ? match[1] : url;
 }
 
-// Filter out already seen jobs
 async function filterNewJobs(jobs) {
   return new Promise((resolve) => {
     chrome.storage.local.get(['seenJobIds'], (result) => {
@@ -119,7 +119,6 @@ async function filterNewJobs(jobs) {
   });
 }
 
-// Store new jobs
 async function storeNewJobs(newJobs) {
   return new Promise((resolve) => {
     chrome.storage.local.get(['seenJobIds', 'recentJobs'], (result) => {
@@ -133,7 +132,6 @@ async function storeNewJobs(newJobs) {
         }
       });
       
-      // Keep only last 50 seen IDs and last 10 recent jobs
       const trimmedSeenIds = seenIds.slice(-50);
       const trimmedRecentJobs = recentJobs.slice(0, 10);
       
@@ -145,13 +143,11 @@ async function storeNewJobs(newJobs) {
   });
 }
 
-// Send notifications for new jobs
 function notifyNewJobs(jobs) {
   jobs.forEach((job, index) => {
     setTimeout(() => {
       chrome.notifications.create({
         type: 'basic',
-        iconUrl: 'icon128.png',
         title: 'وظيفة جديدة في بعيد',
         message: job.title,
         priority: 2
