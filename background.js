@@ -64,31 +64,19 @@ async function checkForNewJobs() {
 
 function parseJobs(html) {
   const jobs = [];
-  const jobPattern = /<article[^>]*class="[^"]*job[^"]*"[^>]*>[\s\S]*?<\/article>/gi;
+  const jobPattern = /<tr[^>]*>[\s\S]*?<\/tr>/gi;
   const jobMatches = html.match(jobPattern) || [];
   
   jobMatches.forEach((jobHtml) => {
     if (jobHtml.includes('جديد')) {
-      const urlMatch = jobHtml.match(/href="([^"]*\/jobs\/[^"]*)"/i);
+      const urlMatch = jobHtml.match(/href="(https:\/\/baaeed\.com\/remote-jobs\/[^"]+)"/i);
       if (!urlMatch) return;
       
-      const url = urlMatch[1].startsWith('http') ? urlMatch[1] : `https://baaeed.com${urlMatch[1]}`;
+      const url = urlMatch[1];
       const jobId = extractJobId(url);
       
-      let title = '';
-      const titlePatterns = [
-        /<h2[^>]*>(.*?)<\/h2>/i,
-        /<h3[^>]*>(.*?)<\/h3>/i,
-        /class="[^"]*title[^"]*"[^>]*>(.*?)</i
-      ];
-      
-      for (const pattern of titlePatterns) {
-        const titleMatch = jobHtml.match(pattern);
-        if (titleMatch) {
-          title = titleMatch[1].replace(/<[^>]*>/g, '').trim();
-          break;
-        }
-      }
+      const titleMatch = jobHtml.match(/<a[^>]*href="https:\/\/baaeed\.com\/remote-jobs\/[^"]*"[^>]*>\s*([^<]+)\s*<\/a>/i);
+      const title = titleMatch ? titleMatch[1].trim() : '';
       
       if (title && url) {
         jobs.push({
