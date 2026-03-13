@@ -121,7 +121,7 @@ async function storeNewJobs(newJobs) {
       });
       
       const trimmedSeenIds = seenIds.slice(-50);
-      const trimmedRecentJobs = recentJobs.slice(0, 10);
+      const trimmedRecentJobs = recentJobs.slice(0, 20);
       
       chrome.storage.local.set({
         seenJobIds: trimmedSeenIds,

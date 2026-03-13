@@ -22,7 +22,7 @@ function loadSettings() {
 function loadJobs() {
   chrome.storage.local.get(['recentJobs'], (result) => {
     const jobs = result.recentJobs || [];
-    displayJobs(jobs.slice(0, 3));
+    displayJobs(jobs);
   });
 }
 
