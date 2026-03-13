@@ -136,6 +136,7 @@ function notifyNewJobs(jobs) {
     setTimeout(() => {
       chrome.notifications.create({
         type: 'basic',
+        iconUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect fill="%2300bfa5" width="128" height="128" rx="16"/><text x="64" y="80" font-size="60" text-anchor="middle" fill="white">💼</text></svg>',
         title: 'وظيفة جديدة في بعيد',
         message: job.title,
         priority: 2
