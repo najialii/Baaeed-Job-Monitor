@@ -113,7 +113,7 @@ async function storeNewJobs(newJobs) {
       const seenIds = result.seenJobIds || [];
       const recentJobs = result.recentJobs || [];
       
-      newJobs.forEach(job => {
+      newJobs.reverse().forEach(job => {
         if (!seenIds.includes(job.id)) {
           seenIds.push(job.id);
           recentJobs.unshift(job);
