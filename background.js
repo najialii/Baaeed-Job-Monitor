@@ -78,11 +78,15 @@ function parseJobs(html) {
       const titleMatch = jobHtml.match(/<a[^>]*href="https:\/\/baaeed\.com\/remote-jobs\/[^"]*"[^>]*>\s*([\s\S]*?)\s*<\/a>/i);
       let title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, '').trim() : '';
       
+      const dateMatch = jobHtml.match(/<time[^>]*datetime="([^"]*)"[^>]*>\s*([^<]+)\s*<\/time>/i);
+      const dateText = dateMatch ? dateMatch[2].trim() : '';
+      
       if (title && url) {
         jobs.push({
           id: jobId,
           title: title,
           url: url,
+          date: dateText,
           timestamp: new Date().toISOString()
         });
       }

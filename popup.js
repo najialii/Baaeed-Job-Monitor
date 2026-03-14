@@ -35,7 +35,7 @@ function displayJobs(jobs) {
   jobListEl.innerHTML = jobs.map(job => `
     <div class="job-item" data-url="${job.url}">
       <div class="job-title">${escapeHtml(job.title)}</div>
-      <div class="job-time">${formatTime(job.timestamp)}</div>
+      <div class="job-time">${job.date || formatTime(job.timestamp)}</div>
     </div>
   `).join('');
   
